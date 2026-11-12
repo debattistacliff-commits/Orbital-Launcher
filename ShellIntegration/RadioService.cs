@@ -88,7 +88,7 @@ public sealed class RadioService
     {
         _settings = settings;
         _ui = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("TitaniumOrbitalLauncher/2.0");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("OrbitalLauncher/2.0");
     }
 
     /// <summary>Live sound levels of the playing station, for the lights around the clock.</summary>

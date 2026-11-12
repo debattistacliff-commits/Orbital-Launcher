@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in Titanium Orbital Launcher.
+Thanks for your interest in Orbital Launcher.
 
 ## Development setup
 
@@ -13,7 +13,7 @@ Thanks for your interest in Titanium Orbital Launcher.
 ## Pull requests
 
 - Explain the user-facing effect of the change.
-- Keep the titanium/steel/cyan/amber visual language consistent.
+- Keep the frosted glass, steel blue and orange look consistent.
 - Include a screenshot for visible UI changes.
 - Avoid committing `bin`, `obj`, local settings, indexed paths, or personal files.
 - Test application launching, radio failure handling, and the 24-hour clock when touching those areas.

@@ -15,6 +15,8 @@ dotnet --info
 
 ## Recommended installation
 
+Not technical? Just double-click `Install.bat` (see the README). For developers:
+
 Clone the repository and run the installation helper:
 
 ```powershell
@@ -28,12 +30,12 @@ The script:
 
 1. Restores and publishes a Release build for `win-x64`.
 2. Places the build in `publish\win-x64`.
-3. Creates a Desktop shortcut with the titanium orbital icon.
+3. Creates a Desktop shortcut with the Orbital Launcher icon.
 
 Run the application from the shortcut or directly:
 
 ```text
-publish\win-x64\TitaniumOrbitalLauncher.exe
+publish\win-x64\OrbitalLauncher.exe
 ```
 
 ## Manual development build

@@ -4,12 +4,12 @@ using Microsoft.Win32;
 
 namespace DesktopOrbit.ShellIntegration;
 
-/// <summary>The "Titanium Orbital" entry in the desktop right-click menu, and starting with Windows. Both live in HKCU, so no admin rights are needed.</summary>
+/// <summary>The "Orbital Launcher" entry in the desktop right-click menu, and starting with Windows. Both live in HKCU, so no admin rights are needed.</summary>
 public static class DesktopIntegration
 {
-    private const string MenuKey = @"Software\Classes\DesktopBackground\Shell\TitaniumOrbital";
+    private const string MenuKey = @"Software\Classes\DesktopBackground\Shell\OrbitalLauncher";
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValue = "TitaniumOrbitalLauncher";
+    private const string RunValue = "OrbitalLauncher";
 
     private static readonly (string Id, string Label, string Section)[] MenuItems =
     [
@@ -32,7 +32,7 @@ public static class DesktopIntegration
     {
         var exe = ExePath;
         using var root = Registry.CurrentUser.CreateSubKey(MenuKey);
-        root.SetValue("MUIVerb", "Titanium Orbital");
+        root.SetValue("MUIVerb", "Orbital Launcher");
         root.SetValue("Icon", $"\"{exe}\",0");
         root.SetValue("SubCommands", string.Empty);
         root.SetValue("Position", "Top");
@@ -44,6 +44,14 @@ public static class DesktopIntegration
             using var command = item.CreateSubKey("command");
             command.SetValue(string.Empty, $"\"{exe}\" --ring {section}".TrimEnd());
         }
+    }
+
+    /// <summary>Removes the entries left by the old name ("Titanium Orbital"), keeping start-with-Windows if it was on.</summary>
+    public static void RemoveOldNameEntries()
+    {
+        Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\DesktopBackground\Shell\TitaniumOrbital", throwOnMissingSubKey: false);
+        using var run = Registry.CurrentUser.OpenSubKey(RunKey, writable: true);
+        run?.DeleteValue("TitaniumOrbitalLauncher", throwOnMissingValue: false);
     }
 
     public static void UnregisterDesktopMenu() => Registry.CurrentUser.DeleteSubKeyTree(MenuKey, throwOnMissingSubKey: false);
@@ -65,7 +73,7 @@ public static class DesktopIntegration
 /// <summary>Keeps one copy running. A second launch (e.g. from the right-click menu) hands its arguments to the first and exits.</summary>
 public static class SingleInstance
 {
-    private static readonly string PipeName = $"TitaniumOrbital.v2.{Environment.UserName}";
+    private static readonly string PipeName = $"OrbitalLauncher.v2.{Environment.UserName}";
     private const char Separator = '\u001f';
 
     public static bool TrySend(string[] args)

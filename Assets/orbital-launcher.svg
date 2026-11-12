@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="disc" cx="40%" cy="32%" r="75%">
+      <stop offset="0" stop-color="#34404D"/>
+      <stop offset="0.55" stop-color="#1A222C"/>
+      <stop offset="1" stop-color="#0B0F14"/>
+    </radialGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB15C"/>
+      <stop offset="1" stop-color="#E8601C"/>
+    </linearGradient>
+    <radialGradient id="face" cx="50%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#1E2731"/>
+      <stop offset="1" stop-color="#090C10"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FF9A45" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FF9A45" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- glass disc -->
+  <circle cx="128" cy="128" r="122" fill="url(#disc)"/>
+  <circle cx="128" cy="128" r="121" fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="2.5"/>
+  <!-- six ring sectors, like the launcher -->
+  <circle cx="128" cy="128" r="86" fill="none" stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="34"
+          stroke-dasharray="84.07 6" transform="rotate(-87 128 128)"/>
+  <!-- the chosen sector -->
+  <circle cx="128" cy="128" r="86" fill="none" stroke="#5E8FBF" stroke-opacity="0.85" stroke-width="34"
+          stroke-dasharray="84.07 456.3" transform="rotate(-207 128 128)"/>
+  <!-- watch in the centre -->
+  <circle cx="128" cy="128" r="52" fill="url(#face)" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
+  <circle cx="128" cy="128" r="45" fill="none" stroke="url(#orange)" stroke-width="6" stroke-linecap="round"
+          stroke-dasharray="200 83" transform="rotate(-80 128 128)"/>
+  <circle cx="128" cy="128" r="22" fill="url(#glow)"/>
+  <circle cx="128" cy="128" r="9" fill="#FFE2C4"/>
+  <!-- orbit and planet -->
+  <circle cx="128" cy="128" r="110" fill="none" stroke="#FFFFFF" stroke-opacity="0.0" stroke-width="2"/>
+  <circle cx="205.8" cy="50.2" r="22" fill="url(#glow)"/>
+  <circle cx="205.8" cy="50.2" r="13" fill="url(#orange)" stroke="#FFF3E6" stroke-width="2.5"/>
+</svg>

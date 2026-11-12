@@ -26,7 +26,7 @@ public partial class App : System.Windows.Application
         base.OnStartup(e);
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-        _instanceMutex = new Mutex(true, @"Local\TitaniumOrbitalLauncher.v2", out var isFirst);
+        _instanceMutex = new Mutex(true, @"Local\OrbitalLauncher.v2", out var isFirst);
         if (!isFirst)
         {
             // Already running: pass our arguments (e.g. from the desktop right-click menu) to it.
@@ -73,7 +73,7 @@ public partial class App : System.Windows.Application
         _ = ResolvePlacesAsync();
         if (firstRun)
         {
-            Notify("Welcome to Titanium Orbital! Press Alt+Space to open the ring. Customise it to make it yours.");
+            Notify("Welcome to Orbital Launcher! Press Alt+Space to open the ring. Customise it to make it yours.");
             OpenCustomise();
         }
     }
@@ -116,6 +116,8 @@ public partial class App : System.Windows.Application
                 _settings.DesktopMenuEnabled = true;
                 _settings.Save();
             }
+
+            DesktopIntegration.RemoveOldNameEntries();
 
             // Re-register every start so the entry follows the app if it moves.
             if (_settings.DesktopMenuEnabled == true)
@@ -165,7 +167,7 @@ public partial class App : System.Windows.Application
     {
         _tray = new Forms.NotifyIcon
         {
-            Text = $"Titanium Orbital – {_hotkeyLabel}",
+            Text = $"Orbital Launcher – {_hotkeyLabel}",
             Icon = LoadTrayIcon(),
             Visible = true,
             ContextMenuStrip = new Forms.ContextMenuStrip()
@@ -248,7 +250,7 @@ public partial class App : System.Windows.Application
     {
         try
         {
-            var resource = GetResourceStream(new Uri("pack://application:,,,/Assets/titanium-orbital-shortcut-v1.ico"));
+            var resource = GetResourceStream(new Uri("pack://application:,,,/Assets/orbital-launcher.ico"));
             if (resource is not null)
             {
                 using var stream = resource.Stream;
@@ -262,7 +264,7 @@ public partial class App : System.Windows.Application
         return System.Drawing.SystemIcons.Application;
     }
 
-    private void Notify(string message) => _tray?.ShowBalloonTip(3000, "Titanium Orbital", message, Forms.ToolTipIcon.None);
+    private void Notify(string message) => _tray?.ShowBalloonTip(3000, "Orbital Launcher", message, Forms.ToolTipIcon.None);
 
     /// <summary>Places that only have a name (a new person's starting city) get their map position, for the weather.</summary>
     private async Task ResolvePlacesAsync()

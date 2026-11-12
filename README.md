@@ -1,4 +1,6 @@
-# Titanium Orbital Launcher
+# Orbital Launcher
+
+![Orbital Launcher](docs/images/orbital-launcher-banner.png)
 
 A frosted-glass ring launcher for Windows 10 and 11. Press **Alt+Space** anywhere, or right-click the desktop, and a see-through ring opens at your mouse: your apps, social apps, files, radio, a watch with weather and world times, and quick system controls, all one click away.
 
@@ -6,24 +8,29 @@ A frosted-glass ring launcher for Windows 10 and 11. Press **Alt+Space** anywher
 
 ## Install
 
-You need Windows 10 (1809 or newer) or Windows 11 and the free [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+You need Windows 10 (1809 or newer) or Windows 11.
 
-1. Download this project (green **Code** button → **Download ZIP**) and unzip it.
-2. Open PowerShell in the unzipped folder and run:
+1. Click the green **Code** button at the top of this page, then **Download ZIP**.
+2. Open your Downloads folder, right-click the ZIP and choose **Extract All…**. Put the folder somewhere you'll keep it, such as Documents.
+3. Open the folder and double-click **Install.bat**.
+   - If Windows shows *"Windows protected your PC"*, click **More info** → **Run anyway**. It shows this for any downloaded file it doesn't know yet.
+   - If your PC doesn't have Microsoft .NET 10 yet, the installer offers to download it for you (free, from Microsoft). Press **Y**.
+4. Wait about a minute. The **Orbital Launcher** icon appears on your desktop, and the app starts. The first time, the **Customise** window opens so you can make the ring yours.
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\install.ps1
-```
+The app then lives in the tray (bottom right, near the clock). Press **Alt+Space** to open the ring.
 
-This builds the app into `publish\win-x64` and puts a **Titanium Orbital Launcher** shortcut on your desktop. Start it once; it sits in the tray (bottom right, near the clock). The first time, the **Customise** window opens so you can make the ring yours.
+**To remove it**, double-click **Uninstall.bat** in the same folder.
 
-To remove it, run `.\scripts\uninstall.ps1` (add `-RemoveSettings` to delete your settings too).
+<details>
+<summary>For technical users</summary>
+
+`Install.bat` runs `scripts\install.ps1`, which builds a Release copy into `publish\win-x64` with the .NET 10 SDK and adds the desktop shortcut. `scripts\uninstall.ps1 [-RemoveSettings]` removes it, along with the right-click and start-up entries.
+</details>
 
 ## Opening the ring
 
 - **Alt+Space** opens and closes it at the mouse. If another app already uses Alt+Space (for example PowerToys Run), it uses **Ctrl+Alt+Space** instead; the tray tooltip tells you which.
-- **Right-click the desktop** → *Show more options* → **Titanium Orbital**.
+- **Right-click the desktop** → *Show more options* → **Orbital Launcher**.
 - **Click the tray icon.**
 - **Esc** or a click outside closes it.
 - **Drag the watch** in the centre to move the ring. Click the **pin** on its edge to keep it open in that spot.
@@ -100,11 +107,11 @@ Tray icon → **Customise…**, or *System → More → Customise*.
 
 ## Self-test
 
-Run `TitaniumOrbitalLauncher.exe --selftest` to check everything works on your PC. It writes a report to `%LOCALAPPDATA%\DesktopOrbit\selftest.txt`. It plays a few seconds of radio and rings the timer once, puts back anything it changes, and never restarts or shuts down the PC.
+Run `OrbitalLauncher.exe --selftest` to check everything works on your PC. It writes a report to `%LOCALAPPDATA%\DesktopOrbit\selftest.txt`. It plays a few seconds of radio and rings the timer once, puts back anything it changes, and never restarts or shuts down the PC.
 
 ## Support this project
 
-Titanium Orbital is free. If you enjoy it and want to say thanks, you can buy me a coffee. It's completely voluntary.
+Orbital Launcher is free. If you enjoy it and want to say thanks, you can buy me a coffee. It's completely voluntary.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/debattistaj)
 

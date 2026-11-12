@@ -60,7 +60,7 @@ public sealed class WorldService
     private readonly Dictionary<string, Weather> _weather = [];
     private readonly HashSet<string> _loading = [];
 
-    public WorldService() => _http.DefaultRequestHeaders.UserAgent.ParseAdd("TitaniumOrbitalLauncher/2.0");
+    public WorldService() => _http.DefaultRequestHeaders.UserAgent.ParseAdd("OrbitalLauncher/2.0");
 
     /// <summary>Raised (on a background thread) when new weather arrives.</summary>
     public event Action? Updated;

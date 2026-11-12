@@ -36,7 +36,7 @@ public sealed class AppEntry
         AppSource.Store => "Store app",
         AppSource.EdgeWebApp => "Edge web app",
         AppSource.ChromeWebApp => "Chrome web app",
-        AppSource.Shortcut => "Desktop shortcut",
+        AppSource.Shortcut => "Shortcut",
         AppSource.Website => "Website",
         _ => "Desktop app"
     };
@@ -191,7 +191,8 @@ public sealed class AppCatalog
         string[] roots =
         [
             Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
-            Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory)
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory),
+            OldLibraryShortcuts
         ];
 
         foreach (var root in roots.Where(Directory.Exists))
@@ -212,14 +213,24 @@ public sealed class AppCatalog
 
             foreach (var file in files)
             {
-                var extension = Path.GetExtension(file);
-                if (extension.Equals(".lnk", StringComparison.OrdinalIgnoreCase) || extension.Equals(".url", StringComparison.OrdinalIgnoreCase))
+                var extension = Path.GetExtension(file).ToLowerInvariant();
+                var fromLibrary = root == OldLibraryShortcuts;
+                if (extension is ".lnk" or ".url" || (fromLibrary && extension is ".exe" or ".bat" or ".cmd"))
                 {
                     yield return new AppEntry { Name = Path.GetFileNameWithoutExtension(file), Id = file, Source = AppSource.Shortcut, TargetExe = ExeOrNull(ShortcutTarget(file)) };
                 }
             }
         }
     }
+
+    /// <summary>
+    /// The first Titanium Orbital tidied desktop shortcuts into "Documents\Desktop Orbit Library\Shortcuts".
+    /// They're read from there too, so nothing that was moved goes missing.
+    /// </summary>
+    public static string OldLibraryShortcuts { get; } =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Desktop Orbit Library", "Shortcuts");
+
+    public static string OldLibrary => Path.GetDirectoryName(OldLibraryShortcuts)!;
 
     private static string? ExeOrNull(string? path) =>
         !string.IsNullOrWhiteSpace(path) && path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? path : null;

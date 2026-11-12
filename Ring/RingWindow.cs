@@ -122,7 +122,7 @@ public sealed partial class RingWindow : Window
         _notify = notify;
         _sector = Math.Clamp(settings.LastSector, 0, Sectors.Length - 1);
 
-        Title = "Titanium Orbital";
+        Title = "Orbital Launcher";
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
         Background = Brushes.Transparent;
@@ -1031,9 +1031,12 @@ public sealed partial class RingWindow : Window
 
     private static List<RingItem> StandardFolders()
     {
+        // Files and shortcuts the first version moved off the desktop, when that library exists.
+        (string Title, string Path)[] library = System.IO.Directory.Exists(AppCatalog.OldLibrary) ? [("My library", AppCatalog.OldLibrary)] : [];
         (string Title, string Path)[] folders =
         [
             ("Desktop", "shell:Desktop"),
+            .. library,
             ("Documents", "shell:Personal"),
             ("Downloads", "shell:Downloads"),
             ("Pictures", "shell:My Pictures"),
