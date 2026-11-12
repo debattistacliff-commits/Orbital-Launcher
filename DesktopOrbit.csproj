@@ -9,16 +9,16 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets\titanium-orbital-shortcut-v1.ico</ApplicationIcon>
-    <AssemblyName>TitaniumOrbitalLauncher</AssemblyName>
-    <Product>Titanium Orbital Launcher</Product>
+    <ApplicationIcon>Assets\orbital-launcher.ico</ApplicationIcon>
+    <AssemblyName>OrbitalLauncher</AssemblyName>
+    <Product>Orbital Launcher</Product>
     <Authors>debattistacliff-commits</Authors>
     <Description>A frosted-glass ring launcher for Windows: apps, social accounts, folders, world radio and quick system actions, opened with Alt+Space or the desktop right-click menu.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\titanium-orbital-shortcut-v1.ico" />
-    <Resource Include="Assets\titanium-orbital-shortcut-v1.png" />
+    <Resource Include="Assets\orbital-launcher.ico" />
+    <Resource Include="Assets\orbital-launcher.png" />
   </ItemGroup>
 
   <ItemGroup>

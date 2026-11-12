@@ -8,7 +8,7 @@ namespace DesktopOrbit.ShellIntegration;
 
 /// <summary>
 /// Checks every part of the launcher on this PC and writes a report to %LOCALAPPDATA%\DesktopOrbit\selftest.txt.
-/// Run with: TitaniumOrbitalLauncher.exe --selftest. Restart and shut down are never run.
+/// Run with: OrbitalLauncher.exe --selftest. Restart and shut down are never run.
 /// It plays a few seconds of radio and a short spoken phrase, and puts every setting it touches back.
 /// </summary>
 public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSettings settings, DesktopOrbit.Ring.RingWindow ring, FocusTimer timer, string hotkeyLabel)
@@ -22,7 +22,7 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
 
     public async Task<string> RunAsync()
     {
-        _report.AppendLine($"Titanium Orbital self-test · {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+        _report.AppendLine($"Orbital Launcher self-test · {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
         _report.AppendLine();
 
         await Step("Apps", TestApps);
@@ -102,6 +102,12 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         }
 
         Check(catalog.Groups.Count > 50, $"{catalog.Groups.Count} apps read from Start, Store, web apps and desktop");
+        if (Directory.Exists(AppCatalog.OldLibraryShortcuts))
+        {
+            var fromLibrary = catalog.Groups.Count(g => g.Variants.Any(v => v.Id.StartsWith(AppCatalog.OldLibraryShortcuts, StringComparison.OrdinalIgnoreCase)));
+            Check(fromLibrary > 0, $"{fromLibrary} shortcuts from the old Desktop Orbit Library are in the app list (the rest are already Start menu apps)");
+        }
+
         var social = catalog.Groups.Where(g => g.IsSocial).ToList();
         Check(social.Count > 0, $"social apps found: {string.Join(", ", social.Select(g => $"{g.Name} ({g.Primary.ShortSourceLabel switch { "" => "app", var s => s }})"))}");
 
@@ -147,11 +153,11 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
 
         // Plant a uniquely named file on a drive the index doesn't usually cover, then find it by scanning all drives.
         var exeFolder = Path.GetDirectoryName(Environment.ProcessPath) ?? Path.GetTempPath();
-        var markerFolder = Path.Combine(Path.GetPathRoot(exeFolder) ?? exeFolder, "TitaniumOrbitalSelfTest");
+        var markerFolder = Path.Combine(Path.GetPathRoot(exeFolder) ?? exeFolder, "OrbitalLauncherSelfTest");
         var target = $"orbital-selftest-{Guid.NewGuid():N}.txt";
         Directory.CreateDirectory(markerFolder);
         var markerPath = Path.Combine(markerFolder, target);
-        await File.WriteAllTextAsync(markerPath, "Created by the Titanium Orbital self-test; deleted straight after.");
+        await File.WriteAllTextAsync(markerPath, "Created by the Orbital Launcher self-test; deleted straight after.");
         var found = new List<FileHit>();
         watch.Restart();
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
@@ -278,7 +284,7 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         Check(!expected || open.Count > 0, open.Count > 0 ? $"recognised as open: {string.Join(" · ", open)}" : "no social apps or Chrome accounts open right now");
 
         // A small window of the app's own, off-screen and without taking focus, stands in for "an open app".
-        const string title = "Titanium Orbital self-test window";
+        const string title = "Orbital Launcher self-test window";
         var closed = new TaskCompletionSource();
         var thread = new Thread(() =>
         {
@@ -796,7 +802,7 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
 
     private async Task TestReadAloud()
     {
-        var message = ReadAloud.Toggle("Titanium Orbital test.");
+        var message = ReadAloud.Toggle("Orbital Launcher test.");
         var spoke = false;
         float peak = 0;
         for (var i = 0; i < 15; i++)
@@ -817,7 +823,7 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
 
     private Task TestScreenshot()
     {
-        var folder = Path.Combine(Path.GetTempPath(), "TitaniumOrbitalTest");
+        var folder = Path.Combine(Path.GetTempPath(), "OrbitalLauncherTest");
         var path = SystemActions.CaptureDesktop(folder, copyToClipboard: false);
         var size = new FileInfo(path).Length;
         Check(size > 50_000, $"whole-desktop screenshot saved ({size / 1024:N0} KB, test copy deleted)");
@@ -836,7 +842,7 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
 
     private Task TestIntegration()
     {
-        using var command = Registry.CurrentUser.OpenSubKey(@"Software\Classes\DesktopBackground\Shell\TitaniumOrbital\shell\01ring\command");
+        using var command = Registry.CurrentUser.OpenSubKey(@"Software\Classes\DesktopBackground\Shell\OrbitalLauncher\shell\01ring\command");
         var value = command?.GetValue(string.Empty) as string ?? string.Empty;
         Check(value.Contains(Environment.ProcessPath ?? "?", StringComparison.OrdinalIgnoreCase), $"desktop right-click entry points at this program ({value})");
         Check(!hotkeyLabel.StartsWith("no hotkey"), $"hotkey registered: {hotkeyLabel}");

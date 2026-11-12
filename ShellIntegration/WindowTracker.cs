@@ -130,7 +130,7 @@ public static class WindowTracker
     private static readonly HashSet<string> NeverEnd = new(StringComparer.OrdinalIgnoreCase)
     {
         "chrome", "msedge", "firefox", "explorer", "ApplicationFrameHost", "dwm", "svchost", "csrss", "winlogon",
-        "SearchHost", "StartMenuExperienceHost", "ShellExperienceHost", "TextInputHost", "SystemSettings", "TitaniumOrbitalLauncher"
+        "SearchHost", "StartMenuExperienceHost", "ShellExperienceHost", "TextInputHost", "SystemSettings", "OrbitalLauncher"
     };
 
     /// <summary>

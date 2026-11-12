@@ -35,7 +35,7 @@ public sealed class CustomiseWindow : Window
     {
         _settings = settings;
         _apply = apply;
-        Title = "Customise Titanium Orbital";
+        Title = "Customise Orbital Launcher";
         Width = 860;
         Height = 640;
         MinWidth = 700;
@@ -331,7 +331,7 @@ public sealed class CustomiseWindow : Window
         startWithWindows.Checked += (_, _) => { _settings.StartWithWindows = true; DesktopIntegration.SetStartWithWindows(true); };
         startWithWindows.Unchecked += (_, _) => { _settings.StartWithWindows = false; DesktopIntegration.SetStartWithWindows(false); };
         page.Children.Add(startWithWindows);
-        var rightClick = new CheckBox { Content = "\"Titanium Orbital\" in the desktop right-click menu", IsChecked = _settings.DesktopMenuEnabled == true, Margin = new Thickness(0, 3, 0, 3) };
+        var rightClick = new CheckBox { Content = "\"Orbital Launcher\" in the desktop right-click menu", IsChecked = _settings.DesktopMenuEnabled == true, Margin = new Thickness(0, 3, 0, 3) };
         rightClick.Checked += (_, _) => { _settings.DesktopMenuEnabled = true; DesktopIntegration.RegisterDesktopMenu(); };
         rightClick.Unchecked += (_, _) => { _settings.DesktopMenuEnabled = false; DesktopIntegration.UnregisterDesktopMenu(); };
         page.Children.Add(rightClick);
@@ -344,7 +344,7 @@ public sealed class CustomiseWindow : Window
         var buttons = new StackPanel { Orientation = Orientation.Horizontal };
         buttons.Children.Add(MakeButton("Save my setup to a file…", () =>
         {
-            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Titanium Orbital setup (*.json)|*.json", FileName = "my-orbital-setup.json" };
+            var dialog = new Microsoft.Win32.SaveFileDialog { Filter = "Orbital Launcher setup (*.json)|*.json", FileName = "my-orbital-setup.json" };
             if (dialog.ShowDialog(this) == true)
             {
                 _settings.Save();
@@ -354,7 +354,7 @@ public sealed class CustomiseWindow : Window
         }, primary: false));
         buttons.Children.Add(MakeButton("Load a setup file…", () =>
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Titanium Orbital setup (*.json)|*.json" };
+            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Orbital Launcher setup (*.json)|*.json" };
             if (dialog.ShowDialog(this) == true && RingSettings.TryLoadFrom(dialog.FileName) is { } loaded)
             {
                 File.Copy(dialog.FileName, RingSettings.SettingsPath, overwrite: true);
