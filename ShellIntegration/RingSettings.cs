@@ -62,6 +62,9 @@ public sealed class RingSettings
     /// <summary>Watch colour: 0 glass, 1 purple, 2 ocean, 3 lime, 4 sunset.</summary>
     public int ClockColour { get; set; }
 
+    /// <summary>Your own flag on the watch: "flag:pt" for a country (any of about 270), or the path of your own picture. Empty = none.</summary>
+    public string? MyFlag { get; set; }
+
     /// <summary>"Alt+Space" or "Ctrl+Alt+Space".</summary>
     public string Hotkey { get; set; } = "Alt+Space";
 

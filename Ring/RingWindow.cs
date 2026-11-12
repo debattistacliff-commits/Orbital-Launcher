@@ -117,6 +117,7 @@ public sealed partial class RingWindow : Window
     {
         _catalog = catalog;
         _settings = settings;
+        MyFlag = settings.MyFlag;
         _radio = radio;
         _timer = timer;
         _notify = notify;

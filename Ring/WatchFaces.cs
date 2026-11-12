@@ -106,14 +106,21 @@ public sealed partial class RingWindow
     }
 
     /// <summary>All watch backgrounds: the colours first, then the flags and emblems.</summary>
-    private static int DialCount => DialColours.Length + Flags.Length;
+    private static int DialCount => DialColours.Length + Flags.Length + (HasMyFlag ? 1 : 0);
 
-    private static string DialName(int index) => index < DialColours.Length ? DialColours[index].Name : Flags[index - DialColours.Length];
+    /// <summary>The number of "your flag" in the background list (the last one), or -1 when there's none.</summary>
+    public static int MyFlagIndex => HasMyFlag ? DialColours.Length + Flags.Length : -1;
+
+    private static string DialName(int index) =>
+        index < DialColours.Length ? DialColours[index].Name
+        : index - DialColours.Length < Flags.Length ? Flags[index - DialColours.Length]
+        : MyFlagName;
 
     /// <summary>The background for a colour or flag number (null = see-through glass).</summary>
     private static System.Windows.Media.Brush? DialFill(int index) =>
-        index >= DialColours.Length ? FlagBrush(Flags[index - DialColours.Length])
-        : DialColours[index].Stops is { } stops ? DialBrush(stops) : null;
+        index < DialColours.Length ? DialColours[index].Stops is { } stops ? DialBrush(stops) : null
+        : index - DialColours.Length < Flags.Length ? FlagBrush(Flags[index - DialColours.Length])
+        : FlagBrush(MyFlagKey);
 
     private void StepColour()
     {

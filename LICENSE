@@ -1,8 +1,33 @@
-Copyright (c) 2026 debattistacliff-commits
+Orbital Launcher
+Copyright (c) 2026 debattistacliff-commits. All rights reserved.
 
-All rights reserved.
+This software, its source code, its name, its logo and icons, and its other visual
+assets are the property of the copyright holder.
 
-The source code and visual assets in this repository are provided for viewing and
-evaluation only. No permission is granted to copy, modify, distribute, sublicense,
-sell, or use this work in another product without prior written permission from the
-copyright holder.
+WHAT YOU MAY DO
+- Download, install and use Orbital Launcher on your own computers, free of charge,
+  for personal or work use.
+- Read the source code on GitHub to see how it works.
+- Share a link to the official page:
+  https://github.com/debattistacliff-commits/Orbital-Launcher
+
+WHAT YOU MAY NOT DO without written permission from the copyright holder
+- Copy, re-upload or redistribute the software or its source code, in whole or in part.
+- Modify it, or publish or distribute a changed version.
+- Sell it, rent it, charge for it, or include it in another product or service.
+- Use the Orbital Launcher name, logo or icons, or claim the work as your own.
+- Remove or change this notice.
+
+Forks that GitHub creates on its own site are allowed only as GitHub's Terms of
+Service require; they give no further rights.
+
+The software is provided "as is", without warranty of any kind. The copyright holder
+is not liable for any claim, damage or other liability arising from its use.
+
+To ask for permission, open an issue on the GitHub page above.
+
+THIRD-PARTY PARTS (not covered by the restrictions above)
+- Country flags in Assets/flags come from flag-icons by Panayiotis Lipiridis,
+  MIT License: see Assets/flags/LICENSE-flag-icons.txt.
+- The Wales, Portugal, Spain and Malta watch flags are made from the official flags
+  on Wikimedia Commons, which are in the public domain.

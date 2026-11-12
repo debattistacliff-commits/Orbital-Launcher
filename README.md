@@ -6,20 +6,23 @@ A frosted-glass ring launcher for Windows 10 and 11. Press **Alt+Space** anywher
 
 ![Themes](docs/images/themes.png)
 
-## Install
+## Download and install
 
-You need Windows 10 (1809 or newer) or Windows 11.
+**[⬇ Download Orbital Launcher](https://github.com/debattistacliff-commits/Orbital-Launcher/releases/latest)**: on that page, click **OrbitalLauncher-2.0.0-Setup.zip**.
 
-1. Click the green **Code** button at the top of this page, then **Download ZIP**.
-2. Open your Downloads folder, right-click the ZIP and choose **Extract All…**. Put the folder somewhere you'll keep it, such as Documents.
-3. Open the folder and double-click **Install.bat**.
-   - If Windows shows *"Windows protected your PC"*, click **More info** → **Run anyway**. It shows this for any downloaded file it doesn't know yet.
-   - If your PC doesn't have Microsoft .NET 10 yet, the installer offers to download it for you (free, from Microsoft). Press **Y**.
-4. Wait about a minute. The **Orbital Launcher** icon appears on your desktop, and the app starts. The first time, the **Customise** window opens so you can make the ring yours.
+1. Open your Downloads folder, right-click the ZIP and choose **Extract All…**.
+2. Open the extracted folder and double-click **Install Orbital Launcher.bat**.
+   - If Windows shows *"Windows protected your PC"*, click **More info** → **Run anyway**. It shows this for any downloaded program it doesn't know yet.
+3. That's it. Nothing else to download, and no admin rights needed. **Orbital Launcher** appears on your desktop and in the Start menu, and starts straight away. The first time, the **Customise** window opens so you can make the ring yours.
+
+**To update:** download the new version and run its installer again. Your settings are kept.
+**To remove:** Settings → Apps → Installed apps → Orbital Launcher → Uninstall.
+
+### Or build it yourself from the source
+
+Green **Code** button → **Download ZIP**, extract it, and double-click **Install.bat**. This builds the app on your PC; if Microsoft .NET 10 is missing, it offers to download it (press **Y**). Remove it with **Uninstall.bat**.
 
 The app then lives in the tray (bottom right, near the clock). Press **Alt+Space** to open the ring.
-
-**To remove it**, double-click **Uninstall.bat** in the same folder.
 
 <details>
 <summary>For technical users</summary>
@@ -77,6 +80,8 @@ Digital · Classic 12-hour · Classic 24-hour · Glow · Calendar · Timer · Ra
 
 Use the colour swatch (or right-click the watch) to change its colour, a country flag or a landmark (London, Rome, Paris, Valletta, Sydney).
 
+**Your own flag:** in Customise → Look → *Your flag*, pick any country (all of them are there; type to find yours), or **Use my own picture…** for anything else.
+
 ![Flags and landmarks](docs/images/watch-flags-landmarks.png)
 ![Weather](docs/images/weather-scenes.png)
 
@@ -126,6 +131,14 @@ scripts/           Install and uninstall
 
 Build with `dotnet build`. See [docs/ROADMAP.md](docs/ROADMAP.md) for what's next.
 
+## Credits
+
+- Country flags: [flag-icons](https://github.com/lipis/flag-icons) by Panayiotis Lipiridis (MIT License).
+- Wales, Portugal, Spain and Malta watch flags: official flags from [Wikimedia Commons](https://commons.wikimedia.org/) (public domain).
+- Radio directory: [Radio Browser](https://www.radio-browser.info/). Weather: [Open-Meteo](https://open-meteo.com/).
+
 ## Creator
 
-Created and maintained by [@debattistacliff-commits](https://github.com/debattistacliff-commits). Copyright is retained by the creator; see [LICENSE](LICENSE).
+Created and maintained by [@debattistacliff-commits](https://github.com/debattistacliff-commits).
+
+**© 2026 debattistacliff-commits. All rights reserved.** You're welcome to download and use Orbital Launcher for free. Copying, changing, re-uploading or selling it, or using its name or logo, is not allowed without permission. See [LICENSE](LICENSE).

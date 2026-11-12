@@ -92,6 +92,102 @@ public sealed partial class RingWindow
 
     private const double F = 150; // flags are drawn on a 150×150 square and stretched to the dial
 
+    /// <summary>
+    /// Flags with detailed emblems (Wales, Portugal, Spain, Malta) are pictures made from the official
+    /// public-domain flags on Wikimedia Commons, cut square around the emblem.
+    /// </summary>
+    private static void FlagPicture(DrawingGroup group, string file) =>
+        AddPicture(group, new System.Windows.Media.Imaging.BitmapImage(new Uri($"pack://application:,,,/Assets/{file}")));
+
+    private static void AddPicture(DrawingGroup group, System.Windows.Media.Imaging.BitmapSource picture)
+    {
+        // Pictures that aren't square (your own photo) are cut square from the middle.
+        if (picture.PixelWidth != picture.PixelHeight)
+        {
+            var side = Math.Min(picture.PixelWidth, picture.PixelHeight);
+            picture = new System.Windows.Media.Imaging.CroppedBitmap(picture,
+                new Int32Rect((picture.PixelWidth - side) / 2, (picture.PixelHeight - side) / 2, side, side));
+        }
+
+        picture.Freeze();
+        group.Children.Add(new ImageDrawing(picture, new Rect(0, 0, F, F)));
+    }
+
+    private const string MyFlagKey = "my flag";
+
+    /// <summary>Your own flag (from settings): "flag:xx" for a country, or the path of a picture. Null = none.</summary>
+    public static string? MyFlag { get; set; }
+
+    private static bool HasMyFlag => !string.IsNullOrWhiteSpace(MyFlag);
+
+    /// <summary>What your flag is called in the list, e.g. "Brazil" or "My picture".</summary>
+    public static string MyFlagName =>
+        MyFlag is { } flag && flag.StartsWith("flag:", StringComparison.Ordinal)
+            ? Countries.FirstOrDefault(c => c.Code == flag[5..]).Name ?? flag[5..].ToUpperInvariant()
+            : "My picture";
+
+    private static IReadOnlyList<(string Code, string Name)>? _countries;
+
+    /// <summary>
+    /// Every country's flag that comes with the app (about 270, from the MIT-licensed flag-icons set),
+    /// sorted by name. Shown in Customise so anyone can put their own flag on the watch.
+    /// </summary>
+    public static IReadOnlyList<(string Code, string Name)> Countries => _countries ??= LoadCountries();
+
+    private static List<(string Code, string Name)> LoadCountries()
+    {
+        try
+        {
+            var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/flags/index.txt"));
+            if (resource is null)
+            {
+                return [];
+            }
+
+            using var reader = new System.IO.StreamReader(resource.Stream);
+            var list = new List<(string, string)>();
+            while (reader.ReadLine() is { } line)
+            {
+                var parts = line.Split('|', 2);
+                if (parts.Length == 2)
+                {
+                    list.Add((parts[0], parts[1]));
+                }
+            }
+
+            return list;
+        }
+        catch (System.IO.IOException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>Draws your own flag; nothing (plain glass) if the picture has gone missing.</summary>
+    private static void MyFlagPicture(DrawingGroup group)
+    {
+        try
+        {
+            if (MyFlag is { } flag && flag.StartsWith("flag:", StringComparison.Ordinal))
+            {
+                FlagPicture(group, $"flags/{flag[5..]}.png");
+            }
+            else if (MyFlag is { } path && System.IO.File.Exists(path))
+            {
+                var picture = new System.Windows.Media.Imaging.BitmapImage();
+                picture.BeginInit();
+                picture.UriSource = new Uri(path);
+                picture.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad; // don't keep the file locked
+                picture.DecodePixelWidth = 400;
+                picture.EndInit();
+                AddPicture(group, picture);
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or NotSupportedException or UriFormatException or ArgumentException)
+        {
+        }
+    }
+
     private static Brush FlagBrush(string flag)
     {
         var group = new DrawingGroup();
@@ -112,10 +208,7 @@ public sealed partial class RingWindow
         switch (flag)
         {
             case "Malta":
-                Bands(true, "#FFFFFF", "#CF142B");
-                // George Cross (grey with a red edge) in the corner.
-                Shape("#CF142B", "M22,30 h10 v-9 h12 v9 h10 v12 h-10 v9 h-12 v-9 h-10 z");
-                Shape("#A9AFB7", "M24,32 h10 v-9 h8 v9 h10 v8 h-10 v9 h-8 v-9 h-10 z");
+                FlagPicture(group, "flag-malta.png");
                 break;
 
             case "Maltese Cross":
@@ -155,9 +248,7 @@ public sealed partial class RingWindow
                 break;
 
             case "Wales":
-                Bands(false, "#FFFFFF", "#00AB39");
-                // A simple red dragon shape in the middle.
-                Shape("#D30731", "M38,92 C40,70 60,62 80,66 L92,50 L98,60 L112,52 L106,70 C114,78 112,94 100,100 L108,112 L94,108 L88,100 L64,102 L56,114 L46,110 L52,98 Z");
+                FlagPicture(group, "flag-wales.png");
                 break;
 
             case "Ireland": Bands(true, "#169B62", "#FFFFFF", "#FF883E"); break;
@@ -168,8 +259,7 @@ public sealed partial class RingWindow
             case "Poland": Bands(false, "#FFFFFF", "#DC143C"); break;
 
             case "Spain":
-                Box("#AA151B", 0, 0, F, F);
-                Box("#F1BF00", 0, 37.5, F, 75);
+                FlagPicture(group, "flag-spain.png");
                 break;
 
             case "London · Big Ben":
@@ -181,9 +271,11 @@ public sealed partial class RingWindow
                 break;
 
             case "Portugal":
-                Box("#FF0000", 0, 0, F, F);
-                Box("#006600", 0, 0, 60, F);
-                group.Children.Add(new GeometryDrawing(new SolidColorBrush(Hex("#FFCC00")), null, new EllipseGeometry(new WpfPoint(60, 75), 22, 22)));
+                FlagPicture(group, "flag-portugal.png");
+                break;
+
+            case MyFlagKey:
+                MyFlagPicture(group);
                 break;
         }
 

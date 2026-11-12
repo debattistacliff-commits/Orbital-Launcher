@@ -12,6 +12,8 @@
     <ApplicationIcon>Assets\orbital-launcher.ico</ApplicationIcon>
     <AssemblyName>OrbitalLauncher</AssemblyName>
     <Product>Orbital Launcher</Product>
+    <Version>2.0.0</Version>
+    <Copyright>Copyright (c) 2026 debattistacliff-commits. All rights reserved.</Copyright>
     <Authors>debattistacliff-commits</Authors>
     <Description>A frosted-glass ring launcher for Windows: apps, social accounts, folders, world radio and quick system actions, opened with Alt+Space or the desktop right-click menu.</Description>
   </PropertyGroup>
@@ -19,6 +21,12 @@
   <ItemGroup>
     <Resource Include="Assets\orbital-launcher.ico" />
     <Resource Include="Assets\orbital-launcher.png" />
+    <Resource Include="Assets\flag-wales.png" />
+    <Resource Include="Assets\flag-portugal.png" />
+    <Resource Include="Assets\flag-spain.png" />
+    <Resource Include="Assets\flag-malta.png" />
+    <Resource Include="Assets\flags\*.png" />
+    <Resource Include="Assets\flags\index.txt" />
   </ItemGroup>
 
   <ItemGroup>

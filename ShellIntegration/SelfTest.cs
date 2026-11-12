@@ -410,8 +410,49 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         ring.RenderFlagsForTest(FlagsPreviewPath);
         settings.ClockColour = colour;
         Check(new FileInfo(FlagsPreviewPath).Length > 20_000, $"drew the watch with every flag to {FlagsPreviewPath}");
+
+        // Any country's flag (or your own picture) can go on the watch.
+        var countries = DesktopOrbit.Ring.RingWindow.Countries;
+        var broken = countries.Where(c =>
+        {
+            try
+            {
+                var picture = new System.Windows.Media.Imaging.BitmapImage(new Uri($"pack://application:,,,/Assets/flags/{c.Code}.png"));
+                return picture.PixelWidth < 100;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+        }).Select(c => c.Name).ToList();
+        Check(countries.Count >= 250 && broken.Count == 0,
+            $"{countries.Count} country flags to choose from in Customise, all load{(broken.Count > 0 ? $" (broken: {string.Join(", ", broken)})" : string.Empty)}");
+
+        var photo = Path.Combine(Path.GetTempPath(), "orbital-myflag-test.png");
+        System.Windows.Media.Imaging.BitmapEncoder encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        var strip = new System.Windows.Media.Imaging.RenderTargetBitmap(300, 200, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            dc.DrawRectangle(System.Windows.Media.Brushes.MediumPurple, null, new System.Windows.Rect(0, 0, 300, 200));
+            dc.DrawEllipse(System.Windows.Media.Brushes.Gold, null, new System.Windows.Point(150, 100), 60, 60);
+        }
+
+        strip.Render(visual);
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(strip));
+        using (var photoFile = File.Create(photo))
+        {
+            encoder.Save(photoFile);
+        }
+
+        ring.RenderMyFlagsForTest(MyFlagsPreviewPath, ["flag:br", "flag:us", "flag:in", "flag:jp", "flag:za", "flag:ca", photo]);
+        File.Delete(photo);
+        Check(new FileInfo(MyFlagsPreviewPath).Length > 20_000, $"drew the watch with your own flag (Brazil, USA, India, Japan, South Africa, Canada, a picture) to {MyFlagsPreviewPath}");
         return Task.CompletedTask;
     }
+
+    public static readonly string MyFlagsPreviewPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "my-flags-preview.png");
 
     public static readonly string CustomisePreviewPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-preview.png");

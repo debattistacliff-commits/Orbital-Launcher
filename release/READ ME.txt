@@ -1,0 +1,22 @@
+Orbital Launcher 2.0
+====================
+
+TO INSTALL
+1. Right-click the ZIP you downloaded and choose "Extract All".
+2. Open the extracted folder and double-click "Install Orbital Launcher.bat".
+3. If Windows says "Windows protected your PC", click "More info", then "Run anyway".
+
+Thats it. Nothing else to download. The app goes into your user folder
+(no admin rights needed), with an icon on the desktop and in the Start menu.
+Press Alt+Space anywhere to open the ring.
+
+TO UPDATE
+Download the new version and run its installer. Your settings are kept.
+
+TO REMOVE
+Settings > Apps > Installed apps > Orbital Launcher > Uninstall.
+
+Manual and help: https://github.com/debattistacliff-commits/Orbital-Launcher
+Copyright (c) 2026 debattistacliff-commits. All rights reserved.
+Free to use; copying, changing, sharing or selling it is not allowed (see LICENSE).
+If you like it: https://buymeacoffee.com/debattistaj (voluntary)
