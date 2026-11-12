@@ -92,6 +92,14 @@ public sealed partial class RingWindow
 
     private const double F = 150; // flags are drawn on a 150×150 square and stretched to the dial
 
+    /// <summary>Y Ddraig Goch: the official Welsh flag dragon (public domain), stored as a picture.</summary>
+    private static void WelshDragon(DrawingGroup group)
+    {
+        var picture = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/flag-wales.png"));
+        picture.Freeze();
+        group.Children.Add(new ImageDrawing(picture, new Rect(0, 0, F, F)));
+    }
+
     private static Brush FlagBrush(string flag)
     {
         var group = new DrawingGroup();
@@ -156,8 +164,7 @@ public sealed partial class RingWindow
 
             case "Wales":
                 Bands(false, "#FFFFFF", "#00AB39");
-                // A simple red dragon shape in the middle.
-                Shape("#D30731", "M38,92 C40,70 60,62 80,66 L92,50 L98,60 L112,52 L106,70 C114,78 112,94 100,100 L108,112 L94,108 L88,100 L64,102 L56,114 L46,110 L52,98 Z");
+                WelshDragon(group);
                 break;
 
             case "Ireland": Bands(true, "#169B62", "#FFFFFF", "#FF883E"); break;
