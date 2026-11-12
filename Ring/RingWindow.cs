@@ -372,10 +372,7 @@ public sealed partial class RingWindow : Window
         Canvas.SetLeft(_results, _center.X - SearchWidth / 2);
         Canvas.SetTop(_results, SearchTop + SearchHeight + 8);
 
-        // The pin sits on the rim, on the side away from the bubbles.
-        var pinAt = Polar(_center, Radius - 10, _mirrored ? -45 : -135);
-        Canvas.SetLeft(_pin, pinAt.X - PinRadius);
-        Canvas.SetTop(_pin, pinAt.Y - PinRadius);
+        PlacePin();
         PaintPin();
         RecaptureGlass();
     }
@@ -486,6 +483,27 @@ public sealed partial class RingWindow : Window
         _settings.PinnedTop = Top;
         _settings.PinnedMirrored = _mirrored;
         _settings.Save();
+    }
+
+    /// <summary>
+    /// The pin sits just outside the ring, in the empty top corner away from the bubbles,
+    /// so it never covers the watch or a section.
+    /// </summary>
+    private void PlacePin()
+    {
+        var pinAt = PinPoint(_center, _mirrored);
+        Canvas.SetLeft(_pin, pinAt.X - PinRadius);
+        Canvas.SetTop(_pin, pinAt.Y - PinRadius);
+    }
+
+    private static WpfPoint PinPoint(WpfPoint center, bool mirrored) => Polar(center, Radius + PinRadius + 8, mirrored ? -45 : -135);
+
+    /// <summary>Self-test: where the pin is, measured from the ring's centre.</summary>
+    public (double Distance, double Watch, double Ring) PinPlacementForTest()
+    {
+        var x = Canvas.GetLeft(_pin) + PinRadius - _center.X;
+        var y = Canvas.GetTop(_pin) + PinRadius - _center.Y;
+        return (Math.Sqrt(x * x + y * y) - PinRadius, HubGlass, Radius);
     }
 
     private void PaintPin()
@@ -860,6 +878,7 @@ public sealed partial class RingWindow : Window
 
     private void Refresh()
     {
+        PlacePin();
         _items = _query.Length > 0 ? Search(_query) : ItemsFor(Sectors[_sector].Name);
         _selected = Math.Clamp(_selected, 0, Math.Max(0, _items.Count - 1));
         PaintSectors();

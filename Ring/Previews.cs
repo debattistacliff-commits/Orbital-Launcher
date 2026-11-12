@@ -21,9 +21,7 @@ public sealed partial class RingWindow
         Canvas.SetTop(_hintHost, _center.Y + Radius + 10);
         Canvas.SetLeft(_searchBox, _center.X - SearchWidth / 2);
         Canvas.SetTop(_searchBox, SearchTop);
-        var pinAt = Polar(_center, Radius - 10, -135);
-        Canvas.SetLeft(_pin, pinAt.X - PinRadius);
-        Canvas.SetTop(_pin, pinAt.Y - PinRadius);
+        PlacePin();
 
         _sector = Array.FindIndex(Sectors, s => s.Name == sectorName);
         _systemView = null;
@@ -76,6 +74,23 @@ public sealed partial class RingWindow
         SetFace(face, remember: false);
         ApplyDial();
         SaveStrip(frames, path, columns: frames.Count);
+    }
+
+    /// <summary>The watch with "your flag" set to this one (then put back).</summary>
+    public BitmapSource RenderWatchForTest(string flag)
+    {
+        var (colour, face, mine) = (_colour, _face, MyFlag);
+        SetFace(WatchFace.Classic, remember: false);
+        MyFlag = flag;
+        _colour = MyFlagIndex;
+        ApplyDial();
+        UpdateFace();
+        var frame = RenderWatchOnly(180);
+        MyFlag = mine;
+        _colour = Math.Clamp(colour, 0, DialCount - 1);
+        SetFace(face, remember: false);
+        ApplyDial();
+        return frame;
     }
 
     public void RenderFlagsForTest(string path)

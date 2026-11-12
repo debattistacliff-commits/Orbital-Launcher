@@ -532,9 +532,7 @@ public sealed partial class RingWindow
             Canvas.SetTop(_searchBox, SearchTop);
             Canvas.SetLeft(_results, _center.X - SearchWidth / 2);
             Canvas.SetTop(_results, SearchTop + SearchHeight + 8);
-            var pinAt = Polar(_center, Radius - 10, -135);
-            Canvas.SetLeft(_pin, pinAt.X - PinRadius);
-            Canvas.SetTop(_pin, pinAt.Y - PinRadius);
+            PlacePin();
         }
 
         const int width = 640, height = 640;

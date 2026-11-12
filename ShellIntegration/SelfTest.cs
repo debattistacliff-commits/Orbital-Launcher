@@ -406,6 +406,9 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         DesktopOrbit.Ring.RingWindow.SaveStrip(frames, ThemesPreviewPath, columns: 5);
         Check(frames.Count == Theme.BuiltIn.Length, $"drew the ring in all {frames.Count} themes to {ThemesPreviewPath}");
 
+        var (pinGap, watchRadius, ringRadius) = ring.PinPlacementForTest();
+        Check(pinGap >= ringRadius && pinGap > watchRadius, $"the pin sits outside the ring ({pinGap:0} from the centre; ring {ringRadius:0}, watch {watchRadius:0}), never on the clock");
+
         var colour = settings.ClockColour;
         ring.RenderFlagsForTest(FlagsPreviewPath);
         settings.ClockColour = colour;
@@ -454,6 +457,12 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
     public static readonly string MyFlagsPreviewPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "my-flags-preview.png");
 
+    public static readonly string CustomiseShotPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-look.png");
+
+    public static readonly string CustomiseFlagShotPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-your-flag.png");
+
     public static readonly string CustomisePreviewPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-preview.png");
 
@@ -479,7 +488,108 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         var window = new DesktopOrbit.Customise.CustomiseWindow(settings, () => { });
         window.RenderPagesForTest(CustomisePreviewPath);
         window.Close();
+
+        // Pictures of the real window: the Look page, and its "Your flag" part further down.
+        var shots = new DesktopOrbit.Customise.CustomiseWindow(settings, () => { });
+        try
+        {
+            var look = shots.ShotForTest("Look", scrollToEnd: false);
+            var yourFlag = shots.ShotForTest("Look", scrollToEnd: true);
+            DesktopOrbit.Ring.RingWindow.SaveStrip([look], CustomiseShotPath, columns: 1);
+            DesktopOrbit.Ring.RingWindow.SaveStrip([yourFlag], CustomiseFlagShotPath, columns: 1);
+            Check(look.PixelWidth > 600, $"photographed the Customise window to {CustomiseShotPath}");
+        }
+        finally
+        {
+            shots.Close();
+        }
         Check(new FileInfo(CustomisePreviewPath).Length > 20_000, $"drew the Customise window's pages to {CustomisePreviewPath}");
+
+        TestYourFlag();
+    }
+
+    public static readonly string YourFlagPreviewPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "your-flag-test.png");
+
+    /// <summary>
+    /// "Your flag" used the way a new person would, on their own fresh settings (yours aren't touched):
+    /// pick a country, type one, use a picture, check it's kept after a restart, then back to none.
+    /// </summary>
+    private void TestYourFlag()
+    {
+        var person = new RingSettings();
+        var window = new DesktopOrbit.Customise.CustomiseWindow(person, () => { });
+        var pictureCopy = Path.Combine(Path.GetDirectoryName(RingSettings.SettingsPath)!, "my-flag.png");
+        var hadPicture = File.Exists(pictureCopy);
+        var photo = Path.Combine(Path.GetTempPath(), "orbital-yourflag-test.png");
+        var frames = new List<System.Windows.Media.Imaging.BitmapSource>();
+        try
+        {
+            var before = DesktopOrbit.Ring.RingWindow.WatchBackgroundNames.Count;
+
+            // 1. Pick a country from the list.
+            var (saved, shown, background) = window.YourFlagForTest(pick: "Brazil");
+            Check(saved == "flag:br" && shown == "Brazil" && background == "Brazil" && person.ClockColour == DesktopOrbit.Ring.RingWindow.MyFlagIndex,
+                $"pick Brazil in Your flag → saved \"{saved}\", watch background set to \"{background}\" (number {person.ClockColour})");
+            Check(DesktopOrbit.Ring.RingWindow.WatchBackgroundNames.Count == before + 1 && DesktopOrbit.Ring.RingWindow.WatchBackgroundNames[^1] == "Brazil",
+                "Brazil is added at the end of the watch backgrounds, after the built-in flags");
+            frames.Add(ring.RenderWatchForTest("flag:br"));
+
+            // 2. Kept after a restart: save to a file and read it back, like starting the app again.
+            var file = Path.Combine(Path.GetTempPath(), "orbital-yourflag-settings.json");
+            File.WriteAllText(file, System.Text.Json.JsonSerializer.Serialize(person));
+            var reloaded = RingSettings.TryLoadFrom(file);
+            File.Delete(file);
+            Check(reloaded?.MyFlag == "flag:br" && reloaded.ClockColour == person.ClockColour, "the choice is still there after a restart");
+
+            // 3. Type a country instead of scrolling.
+            (saved, shown, background) = window.YourFlagForTest(typed: "Malta");
+            Check(saved == "flag:mt" && background == "Malta", $"typing \"Malta\" finds it → saved \"{saved}\", watch shows \"{background}\"");
+            frames.Add(ring.RenderWatchForTest("flag:mt"));
+            (saved, _, background) = window.YourFlagForTest(typed: "Japan");
+            Check(saved == "flag:jp" && background == "Japan", $"typing \"Japan\" → \"{background}\"");
+            frames.Add(ring.RenderWatchForTest("flag:jp"));
+
+            // 4. Their own picture (a wide one, to check it's cut square from the middle).
+            var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(400, 240, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+            var visual = new System.Windows.Media.DrawingVisual();
+            using (var dc = visual.RenderOpen())
+            {
+                dc.DrawRectangle(System.Windows.Media.Brushes.Teal, null, new System.Windows.Rect(0, 0, 400, 240));
+                dc.DrawEllipse(System.Windows.Media.Brushes.Orange, null, new System.Windows.Point(200, 120), 80, 80);
+            }
+
+            bitmap.Render(visual);
+            var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+            using (var stream = File.Create(photo))
+            {
+                encoder.Save(stream);
+            }
+
+            (saved, shown, background) = window.YourFlagForTest(picture: photo);
+            Check(saved is not null && File.Exists(saved) && shown == "My picture" && background == "My picture",
+                $"Use my own picture → a copy is kept ({Path.GetFileName(saved)}), watch shows \"{background}\"");
+            frames.Add(ring.RenderWatchForTest(saved!));
+
+            // 5. Back to none: the extra background goes away again.
+            (saved, _, _) = window.YourFlagForTest(pick: "None");
+            Check(saved is null && DesktopOrbit.Ring.RingWindow.WatchBackgroundNames.Count == before && person.ClockColour < before,
+                "choosing None removes it from the watch backgrounds");
+
+            DesktopOrbit.Ring.RingWindow.SaveStrip(frames, YourFlagPreviewPath, columns: frames.Count);
+            Info($"pictures of each step: {YourFlagPreviewPath}");
+        }
+        finally
+        {
+            window.Close();
+            DesktopOrbit.Ring.RingWindow.MyFlag = settings.MyFlag; // your own flag back on your watch
+            File.Delete(photo);
+            if (!hadPicture)
+            {
+                File.Delete(pictureCopy);
+            }
+        }
     }
 
     /// <summary>World times and weather: your places, a city added and removed again, and every weather scene.</summary>

@@ -12,7 +12,7 @@
     <ApplicationIcon>Assets\orbital-launcher.ico</ApplicationIcon>
     <AssemblyName>OrbitalLauncher</AssemblyName>
     <Product>Orbital Launcher</Product>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Copyright>Copyright (c) 2026 debattistacliff-commits. All rights reserved.</Copyright>
     <Authors>debattistacliff-commits</Authors>
     <Description>A frosted-glass ring launcher for Windows: apps, social accounts, folders, world radio and quick system actions, opened with Alt+Space or the desktop right-click menu.</Description>
