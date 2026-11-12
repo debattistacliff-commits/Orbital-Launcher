@@ -20,8 +20,8 @@ Not technical? Just double-click `Install.bat` (see the README). For developers:
 Clone the repository and run the installation helper:
 
 ```powershell
-git clone https://github.com/debattistacliff-commits/Titanium-Orbital-Launcher.git
-cd Titanium-Orbital-Launcher
+git clone https://github.com/debattistacliff-commits/Orbital-Launcher.git
+cd Orbital-Launcher
 Set-ExecutionPolicy -Scope Process Bypass
 .\scripts\install.ps1
 ```
