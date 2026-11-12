@@ -22,6 +22,9 @@
     <Resource Include="Assets\orbital-launcher.ico" />
     <Resource Include="Assets\orbital-launcher.png" />
     <Resource Include="Assets\flag-wales.png" />
+    <Resource Include="Assets\flag-portugal.png" />
+    <Resource Include="Assets\flag-spain.png" />
+    <Resource Include="Assets\flag-malta.png" />
   </ItemGroup>
 
   <ItemGroup>

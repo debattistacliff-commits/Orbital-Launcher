@@ -92,10 +92,13 @@ public sealed partial class RingWindow
 
     private const double F = 150; // flags are drawn on a 150×150 square and stretched to the dial
 
-    /// <summary>Y Ddraig Goch: the official Welsh flag dragon (public domain), stored as a picture.</summary>
-    private static void WelshDragon(DrawingGroup group)
+    /// <summary>
+    /// Flags with detailed emblems (Wales, Portugal, Spain, Malta) are pictures made from the official
+    /// public-domain flags on Wikimedia Commons, cut square around the emblem.
+    /// </summary>
+    private static void FlagPicture(DrawingGroup group, string file)
     {
-        var picture = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/flag-wales.png"));
+        var picture = new System.Windows.Media.Imaging.BitmapImage(new Uri($"pack://application:,,,/Assets/{file}"));
         picture.Freeze();
         group.Children.Add(new ImageDrawing(picture, new Rect(0, 0, F, F)));
     }
@@ -120,10 +123,7 @@ public sealed partial class RingWindow
         switch (flag)
         {
             case "Malta":
-                Bands(true, "#FFFFFF", "#CF142B");
-                // George Cross (grey with a red edge) in the corner.
-                Shape("#CF142B", "M22,30 h10 v-9 h12 v9 h10 v12 h-10 v9 h-12 v-9 h-10 z");
-                Shape("#A9AFB7", "M24,32 h10 v-9 h8 v9 h10 v8 h-10 v9 h-8 v-9 h-10 z");
+                FlagPicture(group, "flag-malta.png");
                 break;
 
             case "Maltese Cross":
@@ -163,8 +163,7 @@ public sealed partial class RingWindow
                 break;
 
             case "Wales":
-                Bands(false, "#FFFFFF", "#00AB39");
-                WelshDragon(group);
+                FlagPicture(group, "flag-wales.png");
                 break;
 
             case "Ireland": Bands(true, "#169B62", "#FFFFFF", "#FF883E"); break;
@@ -175,8 +174,7 @@ public sealed partial class RingWindow
             case "Poland": Bands(false, "#FFFFFF", "#DC143C"); break;
 
             case "Spain":
-                Box("#AA151B", 0, 0, F, F);
-                Box("#F1BF00", 0, 37.5, F, 75);
+                FlagPicture(group, "flag-spain.png");
                 break;
 
             case "London · Big Ben":
@@ -188,9 +186,7 @@ public sealed partial class RingWindow
                 break;
 
             case "Portugal":
-                Box("#FF0000", 0, 0, F, F);
-                Box("#006600", 0, 0, 60, F);
-                group.Children.Add(new GeometryDrawing(new SolidColorBrush(Hex("#FFCC00")), null, new EllipseGeometry(new WpfPoint(60, 75), 22, 22)));
+                FlagPicture(group, "flag-portugal.png");
                 break;
         }
 
