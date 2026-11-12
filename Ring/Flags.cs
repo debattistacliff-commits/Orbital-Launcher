@@ -96,11 +96,96 @@ public sealed partial class RingWindow
     /// Flags with detailed emblems (Wales, Portugal, Spain, Malta) are pictures made from the official
     /// public-domain flags on Wikimedia Commons, cut square around the emblem.
     /// </summary>
-    private static void FlagPicture(DrawingGroup group, string file)
+    private static void FlagPicture(DrawingGroup group, string file) =>
+        AddPicture(group, new System.Windows.Media.Imaging.BitmapImage(new Uri($"pack://application:,,,/Assets/{file}")));
+
+    private static void AddPicture(DrawingGroup group, System.Windows.Media.Imaging.BitmapSource picture)
     {
-        var picture = new System.Windows.Media.Imaging.BitmapImage(new Uri($"pack://application:,,,/Assets/{file}"));
+        // Pictures that aren't square (your own photo) are cut square from the middle.
+        if (picture.PixelWidth != picture.PixelHeight)
+        {
+            var side = Math.Min(picture.PixelWidth, picture.PixelHeight);
+            picture = new System.Windows.Media.Imaging.CroppedBitmap(picture,
+                new Int32Rect((picture.PixelWidth - side) / 2, (picture.PixelHeight - side) / 2, side, side));
+        }
+
         picture.Freeze();
         group.Children.Add(new ImageDrawing(picture, new Rect(0, 0, F, F)));
+    }
+
+    private const string MyFlagKey = "my flag";
+
+    /// <summary>Your own flag (from settings): "flag:xx" for a country, or the path of a picture. Null = none.</summary>
+    public static string? MyFlag { get; set; }
+
+    private static bool HasMyFlag => !string.IsNullOrWhiteSpace(MyFlag);
+
+    /// <summary>What your flag is called in the list, e.g. "Brazil" or "My picture".</summary>
+    public static string MyFlagName =>
+        MyFlag is { } flag && flag.StartsWith("flag:", StringComparison.Ordinal)
+            ? Countries.FirstOrDefault(c => c.Code == flag[5..]).Name ?? flag[5..].ToUpperInvariant()
+            : "My picture";
+
+    private static IReadOnlyList<(string Code, string Name)>? _countries;
+
+    /// <summary>
+    /// Every country's flag that comes with the app (about 270, from the MIT-licensed flag-icons set),
+    /// sorted by name. Shown in Customise so anyone can put their own flag on the watch.
+    /// </summary>
+    public static IReadOnlyList<(string Code, string Name)> Countries => _countries ??= LoadCountries();
+
+    private static List<(string Code, string Name)> LoadCountries()
+    {
+        try
+        {
+            var resource = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/flags/index.txt"));
+            if (resource is null)
+            {
+                return [];
+            }
+
+            using var reader = new System.IO.StreamReader(resource.Stream);
+            var list = new List<(string, string)>();
+            while (reader.ReadLine() is { } line)
+            {
+                var parts = line.Split('|', 2);
+                if (parts.Length == 2)
+                {
+                    list.Add((parts[0], parts[1]));
+                }
+            }
+
+            return list;
+        }
+        catch (System.IO.IOException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>Draws your own flag; nothing (plain glass) if the picture has gone missing.</summary>
+    private static void MyFlagPicture(DrawingGroup group)
+    {
+        try
+        {
+            if (MyFlag is { } flag && flag.StartsWith("flag:", StringComparison.Ordinal))
+            {
+                FlagPicture(group, $"flags/{flag[5..]}.png");
+            }
+            else if (MyFlag is { } path && System.IO.File.Exists(path))
+            {
+                var picture = new System.Windows.Media.Imaging.BitmapImage();
+                picture.BeginInit();
+                picture.UriSource = new Uri(path);
+                picture.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad; // don't keep the file locked
+                picture.DecodePixelWidth = 400;
+                picture.EndInit();
+                AddPicture(group, picture);
+            }
+        }
+        catch (Exception ex) when (ex is System.IO.IOException or NotSupportedException or UriFormatException or ArgumentException)
+        {
+        }
     }
 
     private static Brush FlagBrush(string flag)
@@ -187,6 +272,10 @@ public sealed partial class RingWindow
 
             case "Portugal":
                 FlagPicture(group, "flag-portugal.png");
+                break;
+
+            case MyFlagKey:
+                MyFlagPicture(group);
                 break;
         }
 

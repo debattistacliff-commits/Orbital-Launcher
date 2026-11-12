@@ -18,6 +18,7 @@ if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed ($LASTEXITCODE)" }
 Copy-Item (Join-Path $root 'release\setup.ps1'), (Join-Path $root 'release\uninstall.ps1') (Join-Path $staging 'app')
 Copy-Item (Join-Path $root 'release\Install Orbital Launcher.bat'), (Join-Path $root 'release\READ ME.txt') $staging
 Copy-Item (Join-Path $root 'LICENSE') (Join-Path $staging 'LICENSE.txt')
+Copy-Item (Join-Path $root 'Assets\flags\LICENSE-flag-icons.txt') $staging
 
 Compress-Archive -Path $staging -DestinationPath $zip
 Write-Host "Release package: $zip ($([math]::Round((Get-Item $zip).Length / 1MB, 1)) MB)"

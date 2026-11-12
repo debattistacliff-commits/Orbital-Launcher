@@ -80,6 +80,8 @@ Digital · Classic 12-hour · Classic 24-hour · Glow · Calendar · Timer · Ra
 
 Use the colour swatch (or right-click the watch) to change its colour, a country flag or a landmark (London, Rome, Paris, Valletta, Sydney).
 
+**Your own flag:** in Customise → Look → *Your flag*, pick any country (all of them are there; type to find yours), or **Use my own picture…** for anything else.
+
 ![Flags and landmarks](docs/images/watch-flags-landmarks.png)
 ![Weather](docs/images/weather-scenes.png)
 
@@ -128,6 +130,12 @@ scripts/           Install and uninstall
 ```
 
 Build with `dotnet build`. See [docs/ROADMAP.md](docs/ROADMAP.md) for what's next.
+
+## Credits
+
+- Country flags: [flag-icons](https://github.com/lipis/flag-icons) by Panayiotis Lipiridis (MIT License).
+- Wales, Portugal, Spain and Malta watch flags: official flags from [Wikimedia Commons](https://commons.wikimedia.org/) (public domain).
+- Radio directory: [Radio Browser](https://www.radio-browser.info/). Weather: [Open-Meteo](https://open-meteo.com/).
 
 ## Creator
 

@@ -25,3 +25,9 @@ The software is provided "as is", without warranty of any kind. The copyright ho
 is not liable for any claim, damage or other liability arising from its use.
 
 To ask for permission, open an issue on the GitHub page above.
+
+THIRD-PARTY PARTS (not covered by the restrictions above)
+- Country flags in Assets/flags come from flag-icons by Panayiotis Lipiridis,
+  MIT License: see Assets/flags/LICENSE-flag-icons.txt.
+- The Wales, Portugal, Spain and Malta watch flags are made from the official flags
+  on Wikimedia Commons, which are in the public domain.

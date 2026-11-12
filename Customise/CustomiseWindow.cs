@@ -114,9 +114,111 @@ public sealed class CustomiseWindow : Window
 
         page.Children.Add(Heading("Watch"));
         page.Children.Add(Labelled("Watch you see first", Choice(RingWindow.WatchFaceNames, _settings.ClockFace, i => _settings.ClockFace = i)));
-        page.Children.Add(Labelled("Watch background (colour or flag)", Choice(RingWindow.WatchBackgroundNames, _settings.ClockColour, i => _settings.ClockColour = i)));
+        var background = Choice(RingWindow.WatchBackgroundNames, _settings.ClockColour, i => _settings.ClockColour = i);
+        page.Children.Add(Labelled("Watch background (colour or flag)", background));
         page.Children.Add(Note("On the ring: click the watch or ‹ › to change watch, click the small swatch to change background."));
+
+        page.Children.Add(Heading("Your flag"));
+        page.Children.Add(Note("Put your own country's flag on the watch. Every country is here: type to find yours. Or use any picture you like."));
+        page.Children.Add(MyFlagPicker(background));
         return page;
+    }
+
+    /// <summary>
+    /// Choose any country's flag (or your own picture) for the watch. It's added after the built-in flags
+    /// and chosen as the watch background straight away.
+    /// </summary>
+    private UIElement MyFlagPicker(ComboBox background)
+    {
+        const string none = "None";
+        const string picture = "My picture";
+        var names = new List<string> { none };
+        names.AddRange(RingWindow.Countries.Select(c => c.Name));
+        if (!string.IsNullOrEmpty(_settings.MyFlag) && !_settings.MyFlag.StartsWith("flag:", StringComparison.Ordinal))
+        {
+            names.Insert(1, picture);
+        }
+
+        var countries = new ComboBox
+        {
+            Width = 260,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            ItemsSource = names,
+            IsEditable = true,
+            IsTextSearchEnabled = true,
+            SelectedItem = string.IsNullOrEmpty(_settings.MyFlag) ? none : RingWindow.MyFlagName
+        };
+
+        void Use(string? flag)
+        {
+            _settings.MyFlag = flag;
+            RingWindow.MyFlag = flag;
+            background.ItemsSource = RingWindow.WatchBackgroundNames;
+            var mine = RingWindow.MyFlagIndex;
+            _settings.ClockColour = mine >= 0 ? mine : Math.Min(_settings.ClockColour, RingWindow.WatchBackgroundNames.Count - 1);
+            background.SelectedIndex = _settings.ClockColour;
+        }
+
+        countries.SelectionChanged += (_, _) =>
+        {
+            switch (countries.SelectedItem as string)
+            {
+                case null:
+                    return;
+                case none:
+                    Use(null);
+                    break;
+                case picture:
+                    break;
+                case var name:
+                    var code = RingWindow.Countries.FirstOrDefault(c => c.Name == name).Code;
+                    if (code is not null)
+                    {
+                        Use("flag:" + code);
+                    }
+
+                    break;
+            }
+        };
+
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        row.Children.Add(countries);
+        var own = MakeButton("Use my own picture…", () =>
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Choose a picture for your watch",
+                Filter = "Pictures (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif"
+            };
+            if (dialog.ShowDialog(this) != true)
+            {
+                return;
+            }
+
+            // Keep a copy, so the watch still has it if the original is moved or deleted.
+            var copy = Path.Combine(Path.GetDirectoryName(RingSettings.SettingsPath)!, "my-flag" + Path.GetExtension(dialog.FileName).ToLowerInvariant());
+            try
+            {
+                File.Copy(dialog.FileName, copy, overwrite: true);
+            }
+            catch (IOException)
+            {
+                return;
+            }
+
+            if (!names.Contains(picture))
+            {
+                names.Insert(1, picture);
+                countries.ItemsSource = null;
+                countries.ItemsSource = names;
+            }
+
+            Use(copy);
+            countries.SelectedItem = picture;
+        }, primary: false);
+        own.Margin = new Thickness(10, 0, 0, 0);
+        row.Children.Add(own);
+        return row;
     }
 
     private UIElement ThemeCard(Theme theme)
@@ -372,11 +474,11 @@ public sealed class CustomiseWindow : Window
         var frames = new List<System.Windows.Media.Imaging.BitmapSource>();
         foreach (var build in new Func<UIElement>[] { LookPage, PlacesPage, RadioPage, AccountsPage, StartupPage, SetupPage })
         {
-            var host = new Border { Width = 660, Height = 720, Background = Brushes.White, Padding = new Thickness(22), Child = build() };
-            host.Measure(new System.Windows.Size(660, 720));
-            host.Arrange(new Rect(0, 0, 660, 720));
+            var host = new Border { Width = 660, Height = 1000, Background = Brushes.White, Padding = new Thickness(22), Child = build() };
+            host.Measure(new System.Windows.Size(660, 1000));
+            host.Arrange(new Rect(0, 0, 660, 1000));
             host.UpdateLayout();
-            var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(660, 720, 96, 96, PixelFormats.Pbgra32);
+            var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(660, 1000, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(host);
             bitmap.Freeze();
             frames.Add(bitmap);

@@ -56,6 +56,28 @@ public sealed partial class RingWindow
     }
 
     /// <summary>Draws the watch once per flag, side by side.</summary>
+    /// <summary>Draws the watch with "your flag" set to each of these (country codes, or a picture path), then puts your own flag back.</summary>
+    public void RenderMyFlagsForTest(string path, IReadOnlyList<string> flags)
+    {
+        var (colour, face, mine) = (_colour, _face, MyFlag);
+        SetFace(WatchFace.Classic, remember: false);
+        var frames = new List<BitmapSource>();
+        foreach (var flag in flags)
+        {
+            MyFlag = flag;
+            _colour = MyFlagIndex;
+            ApplyDial();
+            UpdateFace();
+            frames.Add(RenderWatchOnly(180));
+        }
+
+        MyFlag = mine;
+        _colour = Math.Clamp(colour, 0, DialCount - 1);
+        SetFace(face, remember: false);
+        ApplyDial();
+        SaveStrip(frames, path, columns: frames.Count);
+    }
+
     public void RenderFlagsForTest(string path)
     {
         var (colour, face) = (_colour, _face);

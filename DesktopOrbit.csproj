@@ -25,6 +25,8 @@
     <Resource Include="Assets\flag-portugal.png" />
     <Resource Include="Assets\flag-spain.png" />
     <Resource Include="Assets\flag-malta.png" />
+    <Resource Include="Assets\flags\*.png" />
+    <Resource Include="Assets\flags\index.txt" />
   </ItemGroup>
 
   <ItemGroup>
