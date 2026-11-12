@@ -80,9 +80,15 @@ Digital · Classic 12-hour · Classic 24-hour · Glow · Calendar · Timer · Ra
 
 Use the colour swatch (or right-click the watch) to change its colour, a country flag or a landmark (London, Rome, Paris, Valletta, Sydney).
 
-**Your own flag:** in Customise → Look → *Your flag*, pick any country (all of them are there; type to find yours), or **Use my own picture…** for anything else.
-
 ![Flags and landmarks](docs/images/watch-flags-landmarks.png)
+
+### Your own flag
+
+Every country's flag is included. In **Customise → Look → Your flag**, pick yours (type to find it), or click **Use my own picture…** to put any picture on the watch.
+
+![Your flag on the watch](docs/images/watch-your-flag.png)
+
+![Your flag in Customise](docs/images/customise-your-flag.png)
 ![Weather](docs/images/weather-scenes.png)
 
 When the radio plays, the ring and watch light up with the music.
