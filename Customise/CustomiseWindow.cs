@@ -128,6 +128,36 @@ public sealed class CustomiseWindow : Window
     /// Choose any country's flag (or your own picture) for the watch. It's added after the built-in flags
     /// and chosen as the watch background straight away.
     /// </summary>
+    private ComboBox? _myFlagBox;
+    private ComboBox? _backgroundBox;
+    private Func<string, string?>? _usePicture;
+
+    /// <summary>Self-test: builds the Look page and does what a person does in "Your flag".</summary>
+    public (string? Saved, string? Shown, string? Background) YourFlagForTest(string? pick = null, string? typed = null, string? picture = null)
+    {
+        if (_myFlagBox is null)
+        {
+            LookPage();
+        }
+
+        if (pick is not null)
+        {
+            _myFlagBox!.SelectedItem = pick;
+        }
+
+        if (typed is not null)
+        {
+            _myFlagBox!.Text = typed; // typing into the box picks the matching country
+        }
+
+        if (picture is not null)
+        {
+            _usePicture!(picture);
+        }
+
+        return (_settings.MyFlag, _myFlagBox!.SelectedItem as string, _backgroundBox!.SelectedItem as string);
+    }
+
     private UIElement MyFlagPicker(ComboBox background)
     {
         const string none = "None";
@@ -183,27 +213,18 @@ public sealed class CustomiseWindow : Window
 
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(countries);
-        var own = MakeButton("Use my own picture…", () =>
+        _usePicture = file =>
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Title = "Choose a picture for your watch",
-                Filter = "Pictures (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif"
-            };
-            if (dialog.ShowDialog(this) != true)
-            {
-                return;
-            }
-
             // Keep a copy, so the watch still has it if the original is moved or deleted.
-            var copy = Path.Combine(Path.GetDirectoryName(RingSettings.SettingsPath)!, "my-flag" + Path.GetExtension(dialog.FileName).ToLowerInvariant());
+            var copy = Path.Combine(Path.GetDirectoryName(RingSettings.SettingsPath)!, "my-flag" + Path.GetExtension(file).ToLowerInvariant());
             try
             {
-                File.Copy(dialog.FileName, copy, overwrite: true);
+                Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
+                File.Copy(file, copy, overwrite: true);
             }
             catch (IOException)
             {
-                return;
+                return null;
             }
 
             if (!names.Contains(picture))
@@ -215,6 +236,22 @@ public sealed class CustomiseWindow : Window
 
             Use(copy);
             countries.SelectedItem = picture;
+            return copy;
+        };
+        _myFlagBox = countries;
+        _backgroundBox = background;
+
+        var own = MakeButton("Use my own picture…", () =>
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Choose a picture for your watch",
+                Filter = "Pictures (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif"
+            };
+            if (dialog.ShowDialog(this) == true)
+            {
+                _usePicture(dialog.FileName);
+            }
         }, primary: false);
         own.Margin = new Thickness(10, 0, 0, 0);
         row.Children.Add(own);
