@@ -406,6 +406,9 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         DesktopOrbit.Ring.RingWindow.SaveStrip(frames, ThemesPreviewPath, columns: 5);
         Check(frames.Count == Theme.BuiltIn.Length, $"drew the ring in all {frames.Count} themes to {ThemesPreviewPath}");
 
+        var (pinGap, watchRadius, ringRadius) = ring.PinPlacementForTest();
+        Check(pinGap >= ringRadius && pinGap > watchRadius, $"the pin sits outside the ring ({pinGap:0} from the centre; ring {ringRadius:0}, watch {watchRadius:0}), never on the clock");
+
         var colour = settings.ClockColour;
         ring.RenderFlagsForTest(FlagsPreviewPath);
         settings.ClockColour = colour;
@@ -454,6 +457,12 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
     public static readonly string MyFlagsPreviewPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "my-flags-preview.png");
 
+    public static readonly string CustomiseShotPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-look.png");
+
+    public static readonly string CustomiseFlagShotPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-your-flag.png");
+
     public static readonly string CustomisePreviewPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopOrbit", "customise-preview.png");
 
@@ -479,6 +488,21 @@ public sealed class SelfTest(AppCatalog catalog, RadioService radio, RingSetting
         var window = new DesktopOrbit.Customise.CustomiseWindow(settings, () => { });
         window.RenderPagesForTest(CustomisePreviewPath);
         window.Close();
+
+        // Pictures of the real window: the Look page, and its "Your flag" part further down.
+        var shots = new DesktopOrbit.Customise.CustomiseWindow(settings, () => { });
+        try
+        {
+            var look = shots.ShotForTest("Look", scrollToEnd: false);
+            var yourFlag = shots.ShotForTest("Look", scrollToEnd: true);
+            DesktopOrbit.Ring.RingWindow.SaveStrip([look], CustomiseShotPath, columns: 1);
+            DesktopOrbit.Ring.RingWindow.SaveStrip([yourFlag], CustomiseFlagShotPath, columns: 1);
+            Check(look.PixelWidth > 600, $"photographed the Customise window to {CustomiseShotPath}");
+        }
+        finally
+        {
+            shots.Close();
+        }
         Check(new FileInfo(CustomisePreviewPath).Length > 20_000, $"drew the Customise window's pages to {CustomisePreviewPath}");
 
         TestYourFlag();

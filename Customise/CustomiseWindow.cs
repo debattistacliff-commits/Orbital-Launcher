@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using DesktopOrbit.Ring;
 using DesktopOrbit.ShellIntegration;
@@ -29,7 +30,26 @@ public sealed class CustomiseWindow : Window
     private readonly Action _apply;
     private readonly ContentControl _page = new();
     private readonly WorldService _world = new();
-    private readonly Brush _accent = new SolidColorBrush(Color.FromRgb(0xE0, 0x6A, 0x14));
+    private readonly Brush _accent = new SolidColorBrush(Color.FromRgb(0xF0, 0x7A, 0x2A));
+
+    // Dark, glassy colours that match the ring and the logo (the controls' own look is in CustomiseStyles.xaml).
+    private static readonly Brush Ink = Frozen(0xE9, 0xEE, 0xF3);
+    private static readonly Brush Muted = Frozen(0x93, 0xA3, 0xB2);
+    private static readonly Brush Backdrop = Frozen(0x11, 0x16, 0x1C);
+    private static readonly Brush Side = Frozen(0x0B, 0x0F, 0x13);
+    private static readonly Brush Card = Frozen(0x18, 0x1F, 0x27);
+    private static readonly Brush CardPicked = Frozen(0x1E, 0x27, 0x31);
+    private static readonly Brush Line = Frozen(0x2A, 0x33, 0x3D);
+
+    private static Brush Frozen(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
+    }
+
+    private static ResourceDictionary Styles() =>
+        new() { Source = new Uri("pack://application:,,,/Customise/CustomiseStyles.xaml") };
 
     public CustomiseWindow(RingSettings settings, Action apply)
     {
@@ -43,17 +63,41 @@ public sealed class CustomiseWindow : Window
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         FontFamily = new FontFamily("Segoe UI");
         FontSize = 14;
-        Background = new SolidColorBrush(Color.FromRgb(0xF6, 0xF7, 0xF9));
+        Background = Backdrop;
+        Foreground = Ink;
+        Resources.MergedDictionaries.Add(Styles());
+        try
+        {
+            Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/orbital-launcher.ico"));
+        }
+        catch (IOException)
+        {
+        }
 
-        var layout = new DockPanel();
-        var bottom = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(16) };
-        bottom.Children.Add(MakeButton("Close", Close, primary: false));
-        bottom.Children.Add(MakeButton("Save and apply", () => { _settings.Save(); _apply(); }, primary: true));
+        var layout = new DockPanel { Background = Backdrop };
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
+        buttons.Children.Add(MakeButton("Close", Close, primary: false));
+        buttons.Children.Add(MakeButton("Save and apply", () => { _settings.Save(); _apply(); }, primary: true));
+        var bottom = new Border
+        {
+            Background = Side, BorderBrush = Line, BorderThickness = new Thickness(0, 1, 0, 0),
+            Padding = new Thickness(16, 12, 10, 8), Child = buttons
+        };
         DockPanel.SetDock(bottom, Dock.Bottom);
         layout.Children.Add(bottom);
 
-        var nav = new StackPanel { Width = 190, Background = new SolidColorBrush(Color.FromRgb(0xEC, 0xEE, 0xF2)) };
-        nav.Children.Add(new TextBlock { Text = "Customise", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(18, 18, 18, 14) });
+        var nav = new StackPanel { Width = 200, Background = Side };
+        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(18, 20, 12, 22) };
+        brand.Children.Add(new System.Windows.Controls.Image
+        {
+            Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/orbital-launcher.png")),
+            Width = 34, Height = 34, Margin = new Thickness(0, 0, 10, 0)
+        });
+        var brandText = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        brandText.Children.Add(new TextBlock { Text = "Orbital Launcher", FontWeight = FontWeights.SemiBold, FontSize = 14.5 });
+        brandText.Children.Add(new TextBlock { Text = "Customise", Foreground = Muted, FontSize = 12.5 });
+        brand.Children.Add(brandText);
+        nav.Children.Add(brand);
         foreach (var (name, build) in new (string, Func<UIElement>)[]
                  {
                      ("Look", LookPage), ("Places", PlacesPage), ("Radio", RadioPage), ("Accounts", AccountsPage), ("Start-up", StartupPage), ("My setup", SetupPage)
@@ -63,10 +107,12 @@ public sealed class CustomiseWindow : Window
             {
                 Content = name,
                 HorizontalContentAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(18, 9, 18, 9),
+                Padding = new Thickness(16, 9, 16, 9),
+                Margin = new Thickness(10, 1, 10, 1),
                 Background = Brushes.Transparent,
+                Foreground = Muted,
                 BorderThickness = new Thickness(0),
-                FontSize = 15,
+                FontSize = 14.5,
                 Cursor = System.Windows.Input.Cursors.Hand
             };
             item.Click += (_, _) =>
@@ -74,10 +120,14 @@ public sealed class CustomiseWindow : Window
                 foreach (var other in nav.Children.OfType<Button>())
                 {
                     other.FontWeight = FontWeights.Normal;
+                    other.Foreground = Muted;
+                    other.Background = Brushes.Transparent;
                 }
 
                 item.FontWeight = FontWeights.SemiBold;
-                _page.Content = new ScrollViewer { Content = build(), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(26, 20, 26, 10) };
+                item.Foreground = _accent;
+                item.Background = CardPicked;
+                _page.Content = new ScrollViewer { Content = build(), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(30, 22, 30, 12) };
             };
             nav.Children.Add(item);
         }
@@ -267,9 +317,9 @@ public sealed class CustomiseWindow : Window
             Margin = new Thickness(0, 0, 10, 10),
             Padding = new Thickness(12),
             HorizontalContentAlignment = HorizontalAlignment.Left,
-            Background = Brushes.White,
-            BorderBrush = selected ? _accent : new SolidColorBrush(Color.FromRgb(0xD6, 0xDA, 0xE0)),
-            BorderThickness = new Thickness(selected ? 2.5 : 1),
+            Background = selected ? CardPicked : Card,
+            BorderBrush = selected ? _accent : Line,
+            BorderThickness = new Thickness(selected ? 2 : 1),
             Cursor = System.Windows.Input.Cursors.Hand
         };
         var stack = new StackPanel();
@@ -279,19 +329,19 @@ public sealed class CustomiseWindow : Window
             swatches.Children.Add(new Border
             {
                 Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Margin = new Thickness(0, 0, 4, 0),
-                Background = new SolidColorBrush(Theme.Parse(colour)), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0.5)
+                Background = new SolidColorBrush(Theme.Parse(colour)), BorderBrush = Line, BorderThickness = new Thickness(1)
             });
         }
 
         stack.Children.Add(swatches);
-        stack.Children.Add(new TextBlock { Text = theme.Name + (selected ? "  ✓" : string.Empty), FontWeight = FontWeights.SemiBold });
-        stack.Children.Add(new TextBlock { Text = theme.Description, FontSize = 12, Foreground = Brushes.DimGray, TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(new TextBlock { Text = theme.Name + (selected ? "  ✓" : string.Empty), FontWeight = FontWeights.SemiBold, Foreground = selected ? _accent : Ink });
+        stack.Children.Add(new TextBlock { Text = theme.Description, FontSize = 12, Foreground = Muted, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) });
         card.Content = stack;
         card.Click += (_, _) =>
         {
             _settings.ThemeName = theme.Name;
             _settings.ClockColour = theme.WatchColour; // a watch colour that suits it (changeable below)
-            _page.Content = new ScrollViewer { Content = LookPage(), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(26, 20, 26, 10) };
+            _page.Content = new ScrollViewer { Content = LookPage(), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(30, 22, 30, 12) };
         };
         return card;
     }
@@ -505,13 +555,66 @@ public sealed class CustomiseWindow : Window
         return page;
     }
 
+    /// <summary>Self-test: a picture of the whole window on one page (shown off-screen, never in front of you).</summary>
+    public System.Windows.Media.Imaging.BitmapSource ShotForTest(string pageName, bool scrollToEnd)
+    {
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        Left = -20000;
+        Top = -20000;
+        ShowActivated = false;
+        ShowInTaskbar = false;
+        if (!IsVisible)
+        {
+            Show();
+        }
+
+        var layout = (FrameworkElement)Content;
+        layout.UpdateLayout();
+        var item = layout.FindName(pageName) as Button ?? FindNav(layout, pageName);
+        item?.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        layout.UpdateLayout();
+        if (scrollToEnd && _page.Content is ScrollViewer scroller)
+        {
+            scroller.ScrollToEnd();
+            layout.UpdateLayout();
+        }
+
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap((int)layout.ActualWidth, (int)layout.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(layout);
+        bitmap.Freeze();
+        return bitmap;
+    }
+
+    private static Button? FindNav(DependencyObject root, string name)
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is Button { Content: string text } button && text == name)
+            {
+                return button;
+            }
+
+            if (FindNav(child, name) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>Self-test: draws every page of this window into one picture (without showing it).</summary>
     public void RenderPagesForTest(string path)
     {
         var frames = new List<System.Windows.Media.Imaging.BitmapSource>();
         foreach (var build in new Func<UIElement>[] { LookPage, PlacesPage, RadioPage, AccountsPage, StartupPage, SetupPage })
         {
-            var host = new Border { Width = 660, Height = 1000, Background = Brushes.White, Padding = new Thickness(22), Child = build() };
+            var host = new Border { Width = 660, Height = 1000, Background = Backdrop, Padding = new Thickness(26), Child = build() };
+            host.Resources.MergedDictionaries.Add(Styles());
+            TextElement.SetForeground(host, Ink);
+            TextElement.SetFontFamily(host, new FontFamily("Segoe UI"));
+            TextElement.SetFontSize(host, 14);
             host.Measure(new System.Windows.Size(660, 1000));
             host.Arrange(new Rect(0, 0, 660, 1000));
             host.UpdateLayout();
@@ -529,21 +632,27 @@ public sealed class CustomiseWindow : Window
     private static StackPanel Page(string title, string intro)
     {
         var page = new StackPanel { MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
-        page.Children.Add(new TextBlock { Text = title, FontSize = 22, FontWeight = FontWeights.SemiBold });
-        page.Children.Add(new TextBlock { Text = intro, Foreground = Brushes.DimGray, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 14) });
+        page.Children.Add(new TextBlock { Text = title, FontSize = 24, FontWeight = FontWeights.SemiBold });
+        page.Children.Add(new TextBlock { Text = intro, Foreground = Muted, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 10) });
         return page;
     }
 
-    private static TextBlock Heading(string text) =>
-        new() { Text = text, FontSize = 16, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 14, 0, 8) };
+    /// <summary>A section title with a thin line above it, so each part of a page stands apart.</summary>
+    private static UIElement Heading(string text)
+    {
+        var section = new StackPanel { Margin = new Thickness(0, 18, 0, 8) };
+        section.Children.Add(new Border { Height = 1, Background = Line, Margin = new Thickness(0, 0, 0, 14) });
+        section.Children.Add(new TextBlock { Text = text.ToUpperInvariant(), FontSize = 12, FontWeight = FontWeights.Bold, Foreground = Muted });
+        return section;
+    }
 
     private static TextBlock Note(string text) =>
-        new() { Text = text, FontSize = 12.5, Foreground = Brushes.DimGray, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 4) };
+        new() { Text = text, FontSize = 12.5, Foreground = Muted, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 4) };
 
     private static UIElement Labelled(string label, UIElement control)
     {
         var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 8) };
-        stack.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 0, 0, 4) });
+        stack.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 0, 0, 6) });
         stack.Children.Add(control);
         return stack;
     }
@@ -560,11 +669,13 @@ public sealed class CustomiseWindow : Window
         var button = new Button
         {
             Content = text,
-            Padding = new Thickness(14, 7, 14, 7),
+            Padding = new Thickness(16, 8, 16, 8),
             Margin = new Thickness(0, 0, 8, 6),
-            Background = primary ? _accent : Brushes.White,
-            Foreground = primary ? Brushes.White : Brushes.Black,
-            BorderBrush = primary ? _accent : new SolidColorBrush(Color.FromRgb(0xC8, 0xCD, 0xD4)),
+            Background = primary ? _accent : Card,
+            Foreground = primary ? Brushes.White : Ink,
+            BorderBrush = primary ? _accent : Line,
+            BorderThickness = new Thickness(1),
+            FontWeight = primary ? FontWeights.SemiBold : FontWeights.Normal,
             Cursor = System.Windows.Input.Cursors.Hand
         };
         button.Click += (_, _) => click();

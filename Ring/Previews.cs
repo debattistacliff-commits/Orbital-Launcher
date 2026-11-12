@@ -21,9 +21,7 @@ public sealed partial class RingWindow
         Canvas.SetTop(_hintHost, _center.Y + Radius + 10);
         Canvas.SetLeft(_searchBox, _center.X - SearchWidth / 2);
         Canvas.SetTop(_searchBox, SearchTop);
-        var pinAt = Polar(_center, Radius - 10, -135);
-        Canvas.SetLeft(_pin, pinAt.X - PinRadius);
-        Canvas.SetTop(_pin, pinAt.Y - PinRadius);
+        PlacePin();
 
         _sector = Array.FindIndex(Sectors, s => s.Name == sectorName);
         _systemView = null;
