@@ -12,6 +12,12 @@ if (Test-Path -LiteralPath $shortcutPath) {
     Remove-Item -LiteralPath $shortcutPath -Force
 }
 
+Get-Process TitaniumOrbitalLauncher -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Desktop right-click entry and "Start with Windows" (both per-user, added by v2).
+Remove-Item -LiteralPath 'HKCU:\Software\Classes\DesktopBackground\Shell\TitaniumOrbital' -Recurse -Force -ErrorAction SilentlyContinue
+Remove-ItemProperty -LiteralPath 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'TitaniumOrbitalLauncher' -ErrorAction SilentlyContinue
+
 if (Test-Path -LiteralPath $publishDirectory) {
     Remove-Item -LiteralPath $publishDirectory -Recurse -Force
 }

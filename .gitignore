@@ -11,3 +11,7 @@ publish/
 *.log
 Desktop.ini
 Thumbs.db
+
+# Pictures with personal names/photos: never upload
+previews-local/
+orbital-v2-plan.html

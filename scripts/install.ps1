@@ -30,7 +30,7 @@ $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $executable
 $shortcut.WorkingDirectory = $publishDirectory
 $shortcut.IconLocation = "$iconPath,0"
-$shortcut.Description = 'Launch Titanium Orbital — apps, world radio, and 24-hour orbital clock'
+$shortcut.Description = 'Open the Titanium Orbital ring (Alt+Space)'
 $shortcut.Save()
 
 Write-Host "Titanium Orbital Launcher installed."
